@@ -142,14 +142,11 @@
             }
         }
 
-
-
-
-        async function updateStatus(epc, status) {
-
+        // Función para actualizar el status de la etiqueta de tarima
+        async function updateStatus(epc) {
             try {
                 const response = await fetch(`http://172.16.10.31/api/RfidLabel/Status/${epc}`, {
-                    method: 'POST',
+                    method: 'PUT', // Cambiado a PUT
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -166,6 +163,7 @@
                 console.error("Error al conectarse con el endpoint:", error);
             }
         }
+
 
 
         // Función para mostrar la información del EPC
