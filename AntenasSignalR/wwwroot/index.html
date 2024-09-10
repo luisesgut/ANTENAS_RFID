@@ -1,17 +1,129 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EPCs de Antenas RFID</title>
-</head>
-<body>
-    <div id="content1"></div>
-
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@3.1.8/dist/browser/signalr.min.js"></script>
     <script src="https://unpkg.com/rxjs@^7/dist/bundles/rxjs.umd.min.js"></script>
+    <style>
+        /* Aquí van tus estilos */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .epc-container {
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            box-sizing: border-box;
+            transition: opacity 0.5s ease;
+            font-size: 1.2em; /* Aumentar el tamaño de la fuente */
+        }
+
+            .epc-container img {
+                max-width: 500px; /* Ajustar el tamaño de la imagen */
+                height: auto;
+                margin-right: 20px;
+                border-radius: 8px;
+                flex: 1 1 150px;
+            }
+
+        .epc-details {
+            flex: 2 1 300px;
+        }
+
+        .epc-container b {
+            font-size: 1.5em; /* Aumentar el tamaño de la fuente del EPC */
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .data-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+            .data-list li {
+                margin-bottom: 10px; /* Espacio entre elementos de la lista */
+            }
+
+                .data-list li span {
+                    font-weight: bold;
+                    font-size: 1.3em; /* Aumentar el tamaño de la fuente para etiquetas */
+                }
+
+            .data-list li {
+                font-size: 1.2em; /* Aumentar el tamaño de la fuente para valores */
+            }
+
+        button {
+            padding: 12px 20px;
+            font-size: 1.2em;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+
+        @media (max-width: 768px) {
+            .epc-container {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+                .epc-container img {
+                    margin-right: 0;
+                    margin-bottom: 15px;
+                }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Descripción del Producto</h1>
+        <div id="content1"></div>
+    </div>
 
     <script type="text/javascript">
         const subject = new rxjs.Subject();
+        let currentEpcContainer = null; // Variable para almacenar el contenedor actual
 
         // Función para obtener la información del EPC
         async function fetchEpcData(epc) {
@@ -30,65 +142,147 @@
             }
         }
 
-        // Función para mostrar la información del EPC
-        function displayEpcData(epc, data) {
-            // Crear un contenedor para el EPC y sus datos
-            const epcContainer = document.createElement('div');
-            epcContainer.style.marginBottom = "20px"; // Espacio entre EPCs
 
-            // Mostrar el EPC en un elemento <b>
+
+
+        async function updateStatus(epc, status) {
+
+            try {
+                const response = await fetch(`http://172.16.10.31/api/RfidLabel/Status/${epc}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: 2 }) // Enviar el estado como un objeto JSON
+                });
+
+                if (response.ok) {
+                    console.log("Estado actualizado correctamente");
+                } else {
+                    const errorText = await response.text();
+                    console.error("Error al actualizar el estado:", response.status, errorText);
+                }
+            } catch (error) {
+                console.error("Error al conectarse con el endpoint:", error);
+            }
+        }
+
+
+        // Función para mostrar la información del EPC
+        async function displayEpcData(epc, data) {
+            // Actualizar el estado antes de mostrar los datos
+            await updateStatus(epc);
+
+            if (currentEpcContainer) {
+                // Eliminar el contenedor actual con una transición de opacidad
+                currentEpcContainer.style.opacity = 0;
+                setTimeout(() => {
+                    currentEpcContainer.remove();
+                    currentEpcContainer = createEpcContainer(epc, data);
+                    document.getElementById("content1").appendChild(currentEpcContainer);
+                }, 500); // Tiempo de la transición
+            } else {
+                currentEpcContainer = createEpcContainer(epc, data);
+                document.getElementById("content1").appendChild(currentEpcContainer);
+            }
+        }
+
+        // Función para crear un nuevo contenedor EPC
+        function createEpcContainer(epc, data) {
+            const epcContainer = document.createElement('div');
+            epcContainer.className = 'epc-container';
+
+            // Imagen del producto (ejemplo de URL)
+            const imgElement = document.createElement('img');
+            imgElement.src = 'https://via.placeholder.com/150'; // Reemplaza con la URL de la imagen del producto
+            imgElement.alt = 'Imagen del Producto';
+            epcContainer.appendChild(imgElement);
+
+            const detailsContainer = document.createElement('div');
+            detailsContainer.className = 'epc-details';
+
             const epcElement = document.createElement('b');
             epcElement.textContent = `[EPC]: ${epc}`;
-            epcContainer.appendChild(epcElement);
+            detailsContainer.appendChild(epcElement);
 
-            // Crear una lista para los datos del endpoint
             const dataList = document.createElement('ul');
+            dataList.className = 'data-list';
 
-            // Agregar los elementos de la lista
-            const areaItem = document.createElement('li');
-            areaItem.textContent = `Área: ${data.area}`;
-            dataList.appendChild(areaItem);
+            const dataItems = [
+                { label: 'Área', value: data.area },
+                { label: 'Fecha', value: new Date(data.fecha).toLocaleString() },
+                { label: 'Clave Producto', value: data.claveProducto },
+                { label: 'Nombre Producto', value: data.nombreProducto },
+                { label: 'Peso Neto', value: `${data.pesoNeto} kg` },
+                { label: 'Piezas', value: data.piezas },
+                { label: 'Clave Operador', value: data.claveOperador },
+                { label: 'Operador', value: data.operador },
+                { label: 'Turno', value: data.turno },
+                { label: 'Peso Tarima', value: `${data.pesoTarima} kg` },
+                { label: 'Peso Bruto', value: `${data.pesoBruto} kg` },
+                { label: 'Trazabilidad', value: data.trazabilidad },
+                { label: 'Orden', value: data.orden },
+                { label: 'Estado', value: data.status || 'No disponible' }, // Mostrar estado
+                { label: 'UOM', value: data.uom },
+                { label: 'Product Print Card', value: data.productPrintCard },
+            ];
 
-            const fechaItem = document.createElement('li');
-            fechaItem.textContent = `Fecha: ${data.fecha}`;
-            dataList.appendChild(fechaItem);
+            // Agregar detalles adicionales de prodExtrasDestiny, prodExtrasQuality y prodVasos
+            if (data.prodExtrasDestiny) {
+                dataItems.push(
+                    { label: 'Shipping Units', value: data.prodExtrasDestiny.shippingUnits },
+                    { label: 'UOM', value: data.prodExtrasDestiny.uom },
+                    { label: 'Inventory Lot', value: data.prodExtrasDestiny.inventoryLot },
+                    { label: 'Individual Units', value: data.prodExtrasDestiny.individualUnits },
+                    { label: 'Pallet ID', value: data.prodExtrasDestiny.palletId },
+                    { label: 'Customer PO', value: data.prodExtrasDestiny.customerPo },
+                    { label: 'Total Units', value: data.prodExtrasDestiny.totalUnits },
+                    { label: 'Product Description', value: data.prodExtrasDestiny.productDescription },
+                    { label: 'Item Number', value: data.prodExtrasDestiny.itemNumber }
+                );
+            }
 
-            const claveProductoItem = document.createElement('li');
-            claveProductoItem.textContent = `Clave Producto: ${data.claveProducto}`;
-            dataList.appendChild(claveProductoItem);
+            if (data.prodExtrasQuality) {
+                dataItems.push(
+                    { label: 'Individual Units', value: data.prodExtrasQuality.individualUnits },
+                    { label: 'Item Description', value: data.prodExtrasQuality.itemDescription },
+                    { label: 'Item Number', value: data.prodExtrasQuality.itemNumber },
+                    { label: 'Total Units', value: data.prodExtrasQuality.totalUnits },
+                    { label: 'Shipping Units', value: data.prodExtrasQuality.shippingUnits },
+                    { label: 'Inventory Lot', value: data.prodExtrasQuality.inventoryLot },
+                    { label: 'Customer', value: data.prodExtrasQuality.customer },
+                    { label: 'Traceability', value: data.prodExtrasQuality.traceability }
+                );
+            }
 
-            const nombreProductoItem = document.createElement('li');
-            nombreProductoItem.textContent = `Nombre Producto: ${data.nombreProducto}`;
-            dataList.appendChild(nombreProductoItem);
+            if (data.prodVasos) {
+                dataItems.push(
+                    { label: 'Piezas por caja', value: data.prodVasos.amountPerBox },
+                    { label: 'Cajas', value: data.prodVasos.boxes },
+                    { label: 'Total piezas', value: data.prodVasos.totalAmount }
+                );
+            }
 
-            const pesoNetoItem = document.createElement('li');
-            pesoNetoItem.textContent = `Peso Neto: ${data.pesoNeto} kg`;
-            dataList.appendChild(pesoNetoItem);
+            dataItems.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<span>${item.label}:</span> ${item.value}`;
+                dataList.appendChild(listItem);
+            });
 
-            const piezasItem = document.createElement('li');
-            piezasItem.textContent = `Piezas: ${data.piezas}`;
-            dataList.appendChild(piezasItem);
+            detailsContainer.appendChild(dataList);
+            epcContainer.appendChild(detailsContainer);
 
-            // Agregar la lista al contenedor
-            epcContainer.appendChild(dataList);
-
-            // Agregar el contenedor a content1
-            document.getElementById("content1").appendChild(epcContainer);
+            return epcContainer;
         }
 
         subject.subscribe(async (message) => {
-            // Extraer el EPC del mensaje
-            const epc = message.split('EPC: ')[1];  // Asumiendo que el mensaje tiene el formato: "[Antenna] EPC: 0002417019867005"
+            const epc = message.split('EPC: ')[1]?.trim();  // Manejo de posibles errores en el formato
 
-            // Mostrar el EPC primero
-            const epcContainer = document.createElement('div');
-            epcContainer.innerHTML = `<b>${message}</b>`;
-            document.getElementById("content1").appendChild(epcContainer);
-
-            // Hacer la solicitud al endpoint
-            const epcData = await fetchEpcData(epc);
-            if (epcData) {
-                displayEpcData(epc, epcData);
+            if (epc) {
+                const epcData = await fetchEpcData(epc);
+                if (epcData) {
+                    displayEpcData(epc, epcData);
+                }
             }
         });
 
@@ -96,12 +290,12 @@
             .withUrl("/message")
             .build();
 
-        connection.start().then(() => {
-            console.log("Conectado");
-        }).catch((err) => console.error(err.toString()));
+        connection.start()
+            .then(() => console.log("Conectado"))
+            .catch((err) => console.error("Error de conexión:", err.toString()));
 
         connection.on("sendMessage", (message) => {
-            console.log(message);
+            console.log("Mensaje recibido:", message);
             subject.next(message);
         });
     </script>
