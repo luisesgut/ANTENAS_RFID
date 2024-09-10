@@ -164,12 +164,52 @@
             }
         }
 
+        // Función para registrar los datos en el endpoint ProdExtraInfo 
+        async function registerProdExtraInfo(epc) {
+            try {
+                //Obtener valores del epc
+                const epcData = await fetchEpcData(epc);
+
+                if (epcData && epcData.id) {
+                    const prodEtiquetaRFIDId = epcData.id;
+
+                    const response = await fetch('http://172.16.10.31/api/ProdExtraInfo', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            prodEtiquetaRFIDId: prodEtiquetaRFIDId,
+                            ubicacion: "AlmacenPT",
+                            fechaEntrada: new Date().toISOString(),
+                            fechaSalida: "0001-01-01T00:00:00.0000000"
+                        })
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        return result;
+                    } else {
+                        console.error("Error al registrar la información:", response.statusText);
+                        return null;
+                    }
+                } else {
+                    console.error("No se pudo obtener el ID del EPC");
+                    return null;
+                }
+            } catch (error) {
+                console.error("Error al conectarse con el endpoint de registro:", error);
+                return null;
+            }
+        }
 
 
         // Función para mostrar la información del EPC
         async function displayEpcData(epc, data) {
             // Actualizar el estado antes de mostrar los datos
             await updateStatus(epc);
+            //Hacer el registro en la tabla de ProdExtraInfo
+            await registerProdExtraInfo(epc);
 
             if (currentEpcContainer) {
                 // Eliminar el contenedor actual con una transición de opacidad
