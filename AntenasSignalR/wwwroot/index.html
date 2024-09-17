@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@3.1.8/dist/browser/signalr.min.js"></script>
     <script src="https://unpkg.com/rxjs@^7/dist/bundles/rxjs.umd.min.js"></script>
     <style>
-        /* Aquí van tus estilos */
+        
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -47,11 +47,10 @@
             align-items: flex-start;
             box-sizing: border-box;
             transition: opacity 0.5s ease;
-            font-size: 1.2em; /* Aumentar el tamaño de la fuente */
-        }
+            font-size: 1.2em; 
 
             .epc-container img {
-                max-width: 500px; /* Ajustar el tamaño de la imagen */
+                max-width: 500px; 
                 height: auto;
                 margin-right: 20px;
                 border-radius: 8px;
@@ -75,16 +74,16 @@
         }
 
             .data-list li {
-                margin-bottom: 10px; /* Espacio entre elementos de la lista */
+                margin-bottom: 10px; 
             }
 
                 .data-list li span {
                     font-weight: bold;
-                    font-size: 1.3em; /* Aumentar el tamaño de la fuente para etiquetas */
+                    font-size: 1.3em; 
                 }
 
             .data-list li {
-                font-size: 1.2em; /* Aumentar el tamaño de la fuente para valores */
+                font-size: 1.2em; 
             }
 
         button {
@@ -146,11 +145,11 @@
         async function updateStatus(epc) {
             try {
                 const response = await fetch(`http://172.16.10.31/api/RfidLabel/Status/${epc}`, {
-                    method: 'PUT', // Cambiado a PUT
+                    method: 'PUT', 
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ status: 2 }) // Enviar el estado como un objeto JSON
+                    body: JSON.stringify({ status: 2 }) 
                 });
 
                 if (response.ok) {
@@ -230,7 +229,7 @@
             const epcContainer = document.createElement('div');
             epcContainer.className = 'epc-container';
 
-            // Imagen del producto (ejemplo de URL)
+            // Imagen del producto
             const imgElement = document.createElement('img');
             imgElement.src = 'https://via.placeholder.com/150'; // Reemplaza con la URL de la imagen del producto
             imgElement.alt = 'Imagen del Producto';
@@ -260,12 +259,12 @@
                 { label: 'Peso Bruto', value: `${data.pesoBruto} kg` },
                 { label: 'Trazabilidad', value: data.trazabilidad },
                 { label: 'Orden', value: data.orden },
-                { label: 'Estado', value: data.status || 'No disponible' }, // Mostrar estado
+                { label: 'Estado', value: data.status }, 
                 { label: 'UOM', value: data.uom },
                 { label: 'Product Print Card', value: data.productPrintCard },
             ];
 
-            // Agregar detalles adicionales de prodExtrasDestiny, prodExtrasQuality y prodVasos
+            // Agregar detalles adicionales del producto
             if (data.prodExtrasDestiny) {
                 dataItems.push(
                     { label: 'Shipping Units', value: data.prodExtrasDestiny.shippingUnits },
