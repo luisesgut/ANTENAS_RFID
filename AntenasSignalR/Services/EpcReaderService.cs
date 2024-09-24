@@ -26,7 +26,7 @@ public class EpcReaderService
 
         var hostnames = new List<string>
         {
-            "172.16.100.10",
+            "172.16.100.198",
             "172.16.100.197"
         };
 
@@ -60,7 +60,7 @@ public class EpcReaderService
     {
         foreach (var (impinjReader, name) in readers)
         {
-            impinjReader.Start(); // Iniciar la lectura de las etiquetas
+            impinjReader.Start(); // Iniciar la lectura de las etiquetas inicia 
         }
     }
 
