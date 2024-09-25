@@ -60,7 +60,7 @@ public class EpcReaderService
     {
         foreach (var (impinjReader, name) in readers)
         {
-            impinjReader.Start(); // Iniciar la lectura de las etiquetas
+            impinjReader.Start(); // Iniciar la lectura de las etiquetas inicia 
         }
     }
 
