@@ -15,7 +15,7 @@ builder.Services.AddCors(options =>
         builder
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .WithOrigins("http://localhost:3000") // Cambia esto por la URL de tu frontend
+            .WithOrigins("http://127.0.0.1:5500") // Cambia esto por la URL de tu frontend
             .AllowCredentials(); // Permite enviar cookies o credenciales de autenticación si es necesario
     });
 });
