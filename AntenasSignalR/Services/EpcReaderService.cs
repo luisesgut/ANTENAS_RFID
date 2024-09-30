@@ -20,8 +20,8 @@ public class EpcReaderService
     {
         readers = new List<(ImpinjReader reader, string name)>
         {
-            (new ImpinjReader(), "Entrada Producto Terminado"),
-            (new ImpinjReader(), "Entrada y Salida MP")
+            (new ImpinjReader(), "EntradaPT"),
+            (new ImpinjReader(), "SalidaMP")
         };
 
         var hostnames = new List<string>
